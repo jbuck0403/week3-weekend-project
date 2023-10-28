@@ -305,7 +305,7 @@ class PropertyCalculator:
         print(f"\n\nPotential Appreciation\n")
         for idx in range(0, 10):
             if idx == 0:
-                print(f"Current Value:\t{self.propertyValue}")
+                print(f"Current Value:\t${self.propertyValue}")
             else:
                 appreciationLow += appreciatedValueLow * appreciationLowPercent
                 appreciationHigh += appreciatedValueHigh * appreciationHighPercent
@@ -314,10 +314,10 @@ class PropertyCalculator:
 
                 print(f"Value after {idx} year{'' if idx == 1 else 's'}:")
                 print(
-                    f"Low: {self._addCommas(int(appreciatedValueLow))}\tGain: {self._addCommas(int(appreciatedValueLow - self.propertyValue))}"
+                    f"Low: ${self._addCommas(int(appreciatedValueLow))}\tGain: ${self._addCommas(int(appreciatedValueLow - self.propertyValue))}"
                 )
                 print(
-                    f"High: {self._addCommas(int(appreciatedValueHigh))}\tGain: {self._addCommas(int(appreciatedValueHigh - self.propertyValue))}\n"
+                    f"High: ${self._addCommas(int(appreciatedValueHigh))}\tGain: ${self._addCommas(int(appreciatedValueHigh - self.propertyValue))}\n"
                 )
 
     def displayInvestment(self):
