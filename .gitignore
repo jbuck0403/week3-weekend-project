@@ -1,8 +1,0 @@
-# ignore the pycache directory
-PropertyCalculator/__pycache__/
-
-# ignore compiled python files
-*.pyc
-
-# ignore gitignore
-.gitignore
