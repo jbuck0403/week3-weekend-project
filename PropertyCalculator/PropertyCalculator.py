@@ -334,10 +334,10 @@ class PropertyCalculator:
         print(f"\nMonthly Expenses: ${self._addCommas(self.expenses)}")
         for item, cost in self.expensesByItem.items():
             print(f"{item}\t${self._addCommas(cost)}")
-        print(f"\nUp-Front Expenses: ${self._addCommas(self.upFrontCost)}")
-        print(f"Down Payment: ${self._addCommas(self.downPayment)}")
-        print(f"Commission: ${self._addCommas(self.commission)}")
-        print(f"Rehab Budget: ${self._addCommas(self.rehabBudget)}")
+        print(f"\nUp-Front Expenses:\t${self._addCommas(self.upFrontCost)}")
+        print(f"Down Payment:\t${self._addCommas(self.downPayment)}")
+        print(f"Commission:\t${self._addCommas(self.commission)}")
+        print(f"Rehab Budget:\t${self._addCommas(self.rehabBudget)}")
         for item, cost in self.miscCostItems.items():
             print(f"{item.title()}\t${self._addCommas(cost)}")
 
