@@ -1,5 +1,9 @@
-from ui import clearTerminal
-from financialInfo import propertyTaxRates, mortgageRates, homeInsuranceAvgYear
+from PropertyCalculator.ui import clearTerminal
+from PropertyCalculator.financialInfo import (
+    propertyTaxRates,
+    mortgageRates,
+    homeInsuranceAvgYear,
+)
 
 
 class PropertyCalculator:
@@ -400,7 +404,3 @@ class PropertyCalculator:
             except:
                 error = True
                 continue
-
-
-test = PropertyCalculator()
-test.runner()
