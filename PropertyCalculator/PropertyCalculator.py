@@ -33,12 +33,15 @@ class PropertyCalculator:
         self.income = 0
         self.expenses = 0
         self.expensesByItem = {}
-        self.cashFlow = self.income - self.expenses
+        self.cashFlow = 0
         self.roi = 0
         self.mortgageTimeline = 0
         self.mortgagePayment = 0
+        self.mortgage = False
         self.interestRate = 0
         self.propertyTaxPayment = 0
+        self.rehabBudget = 0
+        self.miscCostItems = 0
 
     def runner(self):
         clearTerminal()
@@ -55,16 +58,9 @@ class PropertyCalculator:
 
         self.calcMortgage()
         self.calcIncome()
-        print(self.propertyValue)
-        print(self.downPayment)
-        print(self.income)
-        print(self.mortgagePayment)
-        print(self.interestRate)
-        print(self.propertyTaxPayment)
         self.calcExpenses()
-        print(self.expenses)
-        print(self.expensesByItem)
-        # self.returnOnInvestment()
+        self.returnOnInvestment()
+        self.displayInvestment()
 
     def calcMortgage(self):
         def calcInterest():
@@ -86,6 +82,7 @@ class PropertyCalculator:
 
         propertyValue = self._userInput("What is the value of the property?: ")
         self.propertyValue = propertyValue
+
         rate = propertyTaxRates[
             self._userInput(
                 "In which state is this property located?: ",
@@ -217,7 +214,7 @@ class PropertyCalculator:
                     "What are you estimating for your insurance payment? (Monthly): "
                 )
 
-            return insurance
+            return int(insurance)
 
         hoaCost = hoaDues()
         utilitiesCost = utilities()
@@ -254,9 +251,66 @@ class PropertyCalculator:
 
         self.expensesByItem = expensesDict
         self.expenses = sum(expensesDict.values())
+        self.cashFlow = self.income - self.expenses
 
     def returnOnInvestment(self):
-        self.roi = roi
+        agentsInvolved = self._userInput(
+            "How many agents will be involved in the sale?: ",
+            passCondition=lambda x: type(x) == int and x >= 0 and x <= 2,
+        )
+        self.commission = ((agentsInvolved * 3) / 100) * self.propertyValue
+
+        rehabNeeded = self._userInput(
+            "Will the property need any repairs or upgrades before you can begin renting/utilizing? ('Yes' or 'No'): ",
+            boolInput=True,
+        )
+        if rehabNeeded:
+            rehabBudget = self._userInput(
+                "How much are you planning to budget for rehab?: "
+            )
+        else:
+            rehabBudget = 0
+
+        miscCosts = self._userInput(
+            "Any other Miscellaneous costs? ('Yes' or 'No'): ", boolInput=True
+        )
+        miscCostItems = {}
+        while miscCosts:
+            miscCostName = self._userInput(
+                "Enter the name of the cost ('exit' when done): ", strInput=True
+            )
+            if miscCostName[0] == "e":
+                break
+            miscCost = self._userInput(f"How much for {miscCostName.title()}: ")
+            miscCostItems[miscCostName] = miscCost
+
+        self.rehabBudget = rehabBudget
+        self.miscCostItems = miscCostItems
+
+        miscItems = miscCostItems.values()
+        self.roi = self.cashFlow / (
+            self.downPayment
+            + self.commission
+            + self.rehabBudget
+            + (sum(miscItems) if len(miscCostItems.values()) > 0 else 0)
+        )
+
+    def displayInvestment(self):
+        print(f"Cash Flow: ${self._addCommas(self.cashFlow)}\n")
+        print(f"Expected Return on Investment: %{round(self.roi, 3)}")
+        print("Assets")
+        print(f"Property Value: {self._addCommas(self.propertyValue)}")
+        print(
+            f"Income: ${self.income} with ${self._addCommas(self.rentalIncome)} from rent"
+        )
+        print(f"\nMonthly Expenses: ${self._addCommas(self.expenses)}")
+        for item, cost in self.expensesByItem.items():
+            print(f"{item}\t${self._addCommas(cost)}")
+        print("\nUp-Front Expenses")
+        print(f"Down Payment: ${self._addCommas(self.downPayment)}")
+        print(f"Rehab Budget: ${self._addCommas(self.rehabBudget)}")
+        for item, cost in self.miscCostItems.items():
+            print(f"{item}\t${cost}")
 
     def _addCommas(self, num):
         numStr = str(num)[::-1]
