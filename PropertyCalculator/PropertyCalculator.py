@@ -1,4 +1,4 @@
-from PropertyCalculator.ui import clearTerminal
+from PropertyCalculator.ui import clearTerminal, userInput
 from PropertyCalculator.financialInfo import (
     propertyTaxRates,
     mortgageRates,
@@ -47,7 +47,7 @@ class PropertyCalculator:
     def calcMortgage(self):
         def calcInterest():
             self.mortgage = True
-            timeline = self._userInput(
+            timeline = userInput(
                 f"How many years will you take to pay it off?\n{', '.join([str(period) for period in mortgageRates.keys()])} or another pay period: "
             )
             if timeline in mortgageRates.keys():
@@ -56,17 +56,17 @@ class PropertyCalculator:
             else:
                 self.mortgageTimeline = timeline
                 self.interestRate = (
-                    self._userInput("What interest rate have you been quoted?: ") / 100
+                    userInput("What interest rate have you been quoted?: ") / 100
                 )
             loan = self.propertyValue - self.downPayment
             interest = loan * self.interestRate
             self.mortgagePayment = int((loan + interest) / (self.mortgageTimeline * 12))
 
-        propertyValue = self._userInput("What is the value of the property?: ")
+        propertyValue = userInput("What is the value of the property?: ")
         self.propertyValue = propertyValue
 
         rate = propertyTaxRates[
-            self._userInput(
+            userInput(
                 "In which state is this property located?: ",
                 "Please enter a valid state...",
                 passCondition=lambda x: x in propertyTaxRates.keys(),
@@ -76,9 +76,9 @@ class PropertyCalculator:
 
         self.propertyTaxPayment = int((self.propertyValue * rate / 100.0) / 12)
 
-        mortgage = self._userInput("Will you be taking out a mortgage?", boolInput=True)
+        mortgage = userInput("Will you be taking out a mortgage?", boolInput=True)
         if mortgage:
-            downPayment = self._userInput(
+            downPayment = userInput(
                 f"How much will your down payment be?\nNew home buyers average 6% (${self._addCommas(int(self.propertyValue * 0.06))}), whereas repeat buyers average 17% (${self._addCommas(int(self.propertyValue * 0.17))}): "
             )
             self.downPayment = downPayment
@@ -104,17 +104,17 @@ class PropertyCalculator:
 
             return f"We estimate you can charge between ${low} and ${high} in monthly rent based on your estimated property value of ${self._addCommas(self.propertyValue)}."
 
-        rentalIncome = self._userInput(
+        rentalIncome = userInput(
             f"The primary way property owners see a return on their investment is through rental income.\n{suggestRent()}\nWhat would you estimate your rent to be?: "
         )
 
         self.rentalIncome = rentalIncome
 
-        if self._userInput(
+        if userInput(
             "Do you envision other sources of income for this property?",
             boolInput=True,
         ):
-            self.additionalIncome = self._userInput(
+            self.additionalIncome = userInput(
                 "Please enter the total amount of additional monthly income (excluding rental income) you expect from this property: "
             )
         else:
@@ -124,34 +124,32 @@ class PropertyCalculator:
 
     def calcExpenses(self):
         def hoaDues():
-            hoa = self._userInput(
-                "Is there a Home Owners Association (HOA)?", boolInput=True
-            )
+            hoa = userInput("Is there a Home Owners Association (HOA)?", boolInput=True)
             if hoa:
-                hoaCost = self._userInput("What are the HOA dues?: ")
+                hoaCost = userInput("What are the HOA dues?: ")
             else:
                 hoaCost = 0
 
             return hoaCost
 
         def utilities():
-            tenantPayUtilities = self._userInput(
+            tenantPayUtilities = userInput(
                 "Will the tenants be responsible for utilities (Electric/Water/Sewer/Garbage/Gas)?",
                 boolInput=True,
             )
 
             if not tenantPayUtilities:
-                utilities = self._userInput(
+                utilities = userInput(
                     "Based on national averages, you can expect utilities to cost around $300.\nIs this a fair estimate for you?",
                     boolInput=True,
                 )
                 if utilities:
                     utilitiesCost = 300
                 else:
-                    utilitiesCost = self._userInput(
+                    utilitiesCost = userInput(
                         "What do you estimate to pay for utilities?: "
                     )
-                addUtilitiesToRent = self._userInput(
+                addUtilitiesToRent = userInput(
                     f"Would you like to add utilities (${utilitiesCost}) to the rent?\nThis would bring the new rent to ${self.rentalIncome + utilitiesCost}",
                     boolInput=True,
                 )
@@ -164,12 +162,12 @@ class PropertyCalculator:
             return utilitiesCost
 
         def propertyManagement():
-            propertyManagement = self._userInput(
+            propertyManagement = userInput(
                 "Will you be contracting a property management company?",
                 boolInput=True,
             )
             if propertyManagement:
-                propertyManagementCost = self._userInput(
+                propertyManagementCost = userInput(
                     f"We estimate property management for your property to cost between ${int(self.rentalIncome * 0.06)} and ${int(self.rentalIncome * 0.12)} per month.\nWhat do you expect to pay?: "
                 )
             else:
@@ -179,28 +177,26 @@ class PropertyCalculator:
 
         def emergencyFund():
             irregularPercent = 0.06
-            defaultFund = self._userInput(
+            defaultFund = userInput(
                 f"We recommend setting aside ${self._addCommas(int(self.rentalIncome * irregularPercent))} per month for irregular expenditures like maintenance and capital expenditures (roof replacement, etc.).\nWould you like to add these values?",
                 boolInput=True,
             )
             if defaultFund:
                 fund = int(self.rentalIncome * irregularPercent)
             else:
-                fund = self._userInput(
-                    "How much to set aside for irregular expenditures?: "
-                )
+                fund = userInput("How much to set aside for irregular expenditures?: ")
 
             return fund
 
         def insurance():
-            defaultInsurance = self._userInput(
+            defaultInsurance = userInput(
                 f"The national average for insurance is ${self._addCommas(homeInsuranceAvgYear)}.\nMonthly, this equates to ${self._addCommas(int(homeInsuranceAvgYear / 12))}.\nDo you want to use this estimate?",
                 boolInput=True,
             )
             if defaultInsurance:
                 insurance = homeInsuranceAvgYear / 12
             else:
-                insurance = self._userInput(
+                insurance = userInput(
                     "What are your estimates for your insurance payment? (Monthly): "
                 )
 
@@ -244,28 +240,28 @@ class PropertyCalculator:
         self.cashFlow = self.income - self.expenses
 
     def returnOnInvestment(self):
-        agentsInvolved = self._userInput(
+        agentsInvolved = userInput(
             "How many agents will be involved in the sale?: ",
             "At most 2 representatives...",
             passCondition=lambda x: type(x) == int and x >= 0 and x <= 2,
         )
         self.commission = int(((agentsInvolved * 3) / 100) * self.propertyValue)
 
-        rehabNeeded = self._userInput(
+        rehabNeeded = userInput(
             "Will the property need any repairs or upgrades before you can begin renting/utilizing?",
             boolInput=True,
         )
         if rehabNeeded:
-            rehabBudget = self._userInput(
+            rehabBudget = userInput(
                 "How much are you planning to budget for rehab (fixing up) on the property?: "
             )
         else:
             rehabBudget = 0
 
-        miscCosts = self._userInput("Any other Miscellaneous costs?", boolInput=True)
+        miscCosts = userInput("Any other Miscellaneous costs?", boolInput=True)
         miscCostItems = {}
         while miscCosts:
-            miscCostName = self._userInput(
+            miscCostName = userInput(
                 "Enter the name of the cost ('exit' when done): ",
                 "Input cannot be blank...",
                 passCondition=lambda x: x != "",
@@ -273,7 +269,9 @@ class PropertyCalculator:
             )
             if miscCostName[0] == "e":
                 break
-            miscCost = self._userInput(f"How much for {miscCostName.title()}: ")
+            miscCost = userInput(
+                f"How much for {miscCostName.title()}: ", passCondition=lambda x: x > 0
+            )
             miscCostItems[miscCostName] = miscCost
 
         self.rehabBudget = rehabBudget
@@ -333,13 +331,13 @@ class PropertyCalculator:
         )
         print(f"\nMonthly Expenses: ${self._addCommas(self.expenses)}")
         for item, cost in self.expensesByItem.items():
-            print(f"{item}\t${self._addCommas(cost)}")
+            print(f"{item}:\t${self._addCommas(cost)}")
         print(f"\nUp-Front Expenses:\t${self._addCommas(self.upFrontCost)}")
         print(f"Down Payment:\t${self._addCommas(self.downPayment)}")
         print(f"Commission:\t${self._addCommas(self.commission)}")
         print(f"Rehab Budget:\t${self._addCommas(self.rehabBudget)}")
         for item, cost in self.miscCostItems.items():
-            print(f"{item.title()}\t${self._addCommas(cost)}")
+            print(f"{item.title()}:\t${self._addCommas(cost)}")
 
     def _addCommas(self, num):
         negative = False
@@ -360,47 +358,3 @@ class PropertyCalculator:
         )
 
         return "".join(numMap)[::-1]
-
-    def _userInput(
-        self,
-        message,
-        errorMessage="Invalid input, numbers only...",
-        passCondition=lambda x: type(x) == int,
-        strInput=False,
-        boolInput=False,
-    ):
-        if boolInput:
-            message = f"{message} ('Yes' or 'No'): "
-            errorMessage = "'Yes' or 'No' only..."
-            passCondition = lambda x: x == "y" or x == "n"
-
-        error = False
-        while True:
-            try:
-                clearTerminal()
-
-                if error:
-                    newMessage = f"{errorMessage}\n{message}"
-
-                if strInput:
-                    userInput = input(newMessage if error else message).strip().lower()
-                elif boolInput:
-                    userInput = (
-                        input(newMessage if error else message).strip().lower()[0]
-                    )
-                else:
-                    userInput = int(input(newMessage if error else message).strip())
-
-                if passCondition(userInput):
-                    if boolInput:
-                        if userInput == "y":
-                            return True
-                        else:
-                            return False
-                    return userInput
-                else:
-                    error = True
-                    continue
-            except:
-                error = True
-                continue
