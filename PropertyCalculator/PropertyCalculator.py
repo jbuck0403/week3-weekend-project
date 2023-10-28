@@ -82,7 +82,7 @@ class PropertyCalculator:
                 )
             loan = self.propertyValue - self.downPayment
             interest = loan * self.interestRate
-            self.mortgagePayment = (loan + interest) / (self.mortgageTimeline * 12)
+            self.mortgagePayment = int((loan + interest) / (self.mortgageTimeline * 12))
 
         propertyValue = self._userInput("What is the value of the property?: ")
         self.propertyValue = propertyValue
@@ -95,7 +95,7 @@ class PropertyCalculator:
             )
         ]
 
-        self.propertyTaxPayment = (self.propertyValue * int(rate / 100.0)) / 12
+        self.propertyTaxPayment = int((self.propertyValue * rate / 100.0) / 12)
 
         mortgage = self._userInput(
             "Will you be taking out a mortgage? ('Yes' or 'No'): ", boolInput=True
@@ -261,6 +261,9 @@ class PropertyCalculator:
     def _addCommas(self, num):
         numStr = str(num)[::-1]
         numList = list(numStr)
+
+        if len(numList) - 3 == 0:
+            return num
 
         numMap = map(
             lambda x: x[1] + "," if (x[0] + 1) % 3 == 0 else x[1], enumerate(numList)
